@@ -1,0 +1,1 @@
+export const REQUEST_STUDY= '/api/v1/studies';
