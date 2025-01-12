@@ -1,12 +1,20 @@
 import React from 'react';
+import {Link} from "react-router-dom";
+import {GET_STUDY_COMPRESS, ROOT_API} from "../../../../constants/apis";
 
 interface TableProps {
     tableHead: TableHead[];
     rows: {}[];
+    exportData?: (data:any) => void;
 }
 
 function Table (props:TableProps){
 
+    const handleExport = (data:any) => {
+        if (props.exportData) {
+            props.exportData(data);
+        }
+    }
     return (
         <div className={``} >
 
@@ -40,7 +48,10 @@ function Table (props:TableProps){
                                                 :
                                                 <td className="px-6 py-1">
                                                     <button className="px-2 py-2 hover:text-cyan-400 hover:bg-zinc-700 rounded ">View</button>
-                                                    <button className="px-2 py-2 hover:text-cyan-400 hover:bg-zinc-700 rounded  ">Export</button>
+                                                    <Link
+                                                        to={`${ROOT_API}${GET_STUDY_COMPRESS}?patientId=${data['PatientID']}&&studyUID=${data['StudyInstanceUID']}`}
+                                                        className="px-2 py-2 hover:text-cyan-400 hover:bg-zinc-700 rounded "
+                                                    >Export</Link>
                                                     <button className="px-2 py-2 hover:text-cyan-400 hover:bg-zinc-700 rounded  ">Diagnose</button>
                                                 </td>
                                         ))

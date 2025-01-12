@@ -1,16 +1,28 @@
-// import { notifications } from '@mantine/notifications'
-// import { IconCheck, IconX } from '@tabler/icons-react'
+import {ToastOptions, toast} from "react-toastify";
 
-export const notificationShow = (type: string, title: string, message: string) => {
-    // const icon = type === 'error' ? <IconX size="1.1rem" /> : <IconCheck size="1.1rem" />
-    // const color = type === 'error' ? 'red' : 'teal'
-    // notifications.show({
-    //     withCloseButton: true,
-    //     autoClose: 5000,
-    //     title,
-    //     message,
-    //     color,
-    //     icon,
-    //     loading: false,
-    // })
-}
+const defaultOptions: ToastOptions = {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+};
+
+export const Notification = {
+    success: (message: string, options?: ToastOptions) =>
+        toast.success(message, { ...defaultOptions, ...options }),
+
+    error: (message: string, options?: ToastOptions) =>
+        toast.error(message, { ...defaultOptions, ...options }),
+
+    info: (message: string, options?: ToastOptions) =>
+        toast.info(message, { ...defaultOptions, ...options }),
+
+    warning: (message: string, options?: ToastOptions) =>
+        toast.warn(message, { ...defaultOptions, ...options }),
+
+    custom: (message: string, options?: ToastOptions) =>
+        toast(message, { ...defaultOptions, ...options }),
+};

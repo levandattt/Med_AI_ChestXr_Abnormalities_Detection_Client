@@ -1,4 +1,4 @@
-import { notificationShow } from '../components/Notification';
+import { Notification } from '../components/Notification';
 
 type ErrorObject = {
     code: string;
@@ -16,9 +16,9 @@ export const handleGlobalException = (
     customError: () => void,
 ) => {
     if (error.code === 'ERR_NETWORK') {
-        notificationShow('error', 'Error!', error.message);
+        Notification.error('Network error!');
     } else if ([401, 403, 404, 500].includes(error.response.status)) {
-        notificationShow('error', 'Error!', error.response.data.error);
+        Notification.error(error.response.data.error);
     } else {
         customError();
     }

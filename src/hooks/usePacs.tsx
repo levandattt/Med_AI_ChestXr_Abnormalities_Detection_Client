@@ -30,7 +30,7 @@ function usePacs() {
 
     useEffect(() => {
         fetchStudy.refetch();
-    }, []);
+    },[]);
 
     const uploadFiles = useMutation(async (files: File[]) => {
             const formData = new FormData();
@@ -40,7 +40,7 @@ function usePacs() {
 
             const response = await apiClient.post(UPLOAD_STUDY, formData, {
                 headers: {
-                    "Content-Type": "multipart/form-data",
+                    "Content-Type"  : "multipart/form-data",
                 },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
@@ -54,7 +54,7 @@ function usePacs() {
         },{
             onMutate: () => {
                 setIsUploading(true);
-                setUploadProgress(0); // Đặt lại tiến trình khi bắt đầu upload
+                setUploadProgress(0);
             },
             onError: (error: AxiosError) => {
                 setUploadError(error.message);
@@ -76,7 +76,7 @@ function usePacs() {
         fetchStudy,
         isUploading,
         uploadError,
-        uploadFiles: uploadFiles.mutate,
+        uploadFiles: uploadFiles.mutateAsync,
         uploadedFiles,
         uploadProgress,
     };
