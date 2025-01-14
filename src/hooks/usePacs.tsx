@@ -1,35 +1,57 @@
 import {useMutation, useQuery} from '@tanstack/react-query';
 import apiClient from "../utils/apiClient";
 import {AxiosError} from "axios"; // Add AxiosError import
-import {REQUEST_STUDY, UPLOAD_STUDY} from "../constants/apis";
+import {GET_DICOM_LIST, UPLOAD_STUDY} from "../constants/apis";
 import {useEffect, useState} from "react";
 
 interface ApiResponse {
     data:{
         status: "success" | "error";
         message?: string;
-        data: [];
+        data: any[];
     }
 }
 
-function usePacs() {
+function usePacs(
+    patientID?: string,
+    queryRetrieveLevel: string = "STUDY",
+    studyInstanceUID?: string,
+    seriesInstanceUID?: string
+) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [uploadProgress, setUploadProgress] = useState<number>(0); // Thêm state cho tiến trình
 
 
-    const fetchStudy = useQuery<ApiResponse, AxiosError>({ // Add error type here
-        queryKey: ['get-study'],
+    const fetchDicom = useQuery<ApiResponse, AxiosError>({ // Add error type here
+        queryKey: ['get-dicom-list'],
         queryFn: () => {
-            // const params: { [key: string]: number | string } = {};
-            return apiClient.get(REQUEST_STUDY);
+            const params: { [key: string]: number | string } = {};
+            if (patientID) {
+                params.patientID = patientID;
+            }
+            if (queryRetrieveLevel) {
+                params.queryRetrieveLevel = queryRetrieveLevel;
+            }
+            if (studyInstanceUID) {
+                params.studyInstanceUID = studyInstanceUID;
+            }
+            if (seriesInstanceUID) {
+                params.seriesInstanceUID = seriesInstanceUID;
+            }
+            return apiClient.get(
+                GET_DICOM_LIST,
+                {
+                    params
+                }
+            );
         },
         enabled: false,
     });
 
     useEffect(() => {
-        fetchStudy.refetch();
+        fetchDicom.refetch();
     },[]);
 
     const uploadFiles = useMutation(async (files: File[]) => {
@@ -71,9 +93,9 @@ function usePacs() {
     )
 
     return {
-        loading: fetchStudy.isLoading,
-        data: fetchStudy.data?.data,
-        fetchStudy,
+        loading: fetchDicom.isLoading,
+        data: fetchDicom.data?.data,
+        fetchDicom,
         isUploading,
         uploadError,
         uploadFiles: uploadFiles.mutateAsync,

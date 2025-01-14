@@ -1,7 +1,8 @@
 import axios from "axios";
+import {ROOT_API} from "../constants/apis";
 
 const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000",
+    baseURL: ROOT_API,
 });
 
 export default apiClient;

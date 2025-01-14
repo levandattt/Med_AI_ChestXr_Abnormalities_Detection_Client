@@ -7,6 +7,14 @@ declare global {
         mark?: string;
         icon: React.ElementType;
     }
-
+    interface ApiResponse {
+        data:{
+            status: "success" | "error";
+            message?: string;
+            data: any;
+        }
+    }
 }
+
+
 export {};
