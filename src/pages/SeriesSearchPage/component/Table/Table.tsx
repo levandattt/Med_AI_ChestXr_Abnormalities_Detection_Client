@@ -67,18 +67,20 @@ function Table (props:TableProps){
                                 <td className="px-6 border-x-2 border-zinc-800">{data.SeriesDescription}</td>
                                 <td className="px-6 border-x-2 border-zinc-800">{convertPacDateTime(data.SeriesDate, data.SeriesTime)}</td>
                                 <td className="px-6 py-2">
-                                    {/*<a*/}
-                                    {/*    href={`weasis://` + encodeURIComponent(`$dicom:close --all $dicom:get -r "${ROOT_API}/api/v1/studies/series?patientId=${data?.PatientID}&studyInstanceUID=${data?.StudyInstanceUID}&seriesInstanceUID=${data?.SeriesInstanceUID}"`)}*/}
-                                    {/*    className={`px-2 py-3 hover:text-cyan-400 hover:bg-zinc-700 rounded `}*/}
-                                    {/*>*/}
-                                    {/*    Open in Weasis*/}
-                                    {/*</a>*/}
+
                                     <button
                                         className={`px-2 py-2  hover:bg-zinc-700 rounded hover:text-cyan-400`}
                                         onClick={() => props.handleViewDicom(data)}
                                     >
                                         View
                                     </button>
+                                    |
+                                    <a
+                                        href={`weasis://` + encodeURIComponent(`$dicom:close --all $dicom:get -r "${ROOT_API}/api/v1/studies/series?patientId=${data?.PatientID}&studyInstanceUID=${data?.StudyInstanceUID}&seriesInstanceUID=${data?.SeriesInstanceUID}"`)}
+                                        className={`px-2 py-3 hover:text-cyan-400 hover:bg-zinc-700 rounded `}
+                                    >
+                                        Open in Weasis
+                                    </a>
                                     |
                                     <button
                                         className={`px-2 py-2  ${data.SeriesDescription === 'Predicted' ? "text-zinc-600" : "hover:bg-zinc-700 rounded hover:text-cyan-400 "} `}
