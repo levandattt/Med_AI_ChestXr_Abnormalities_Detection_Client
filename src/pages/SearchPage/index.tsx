@@ -1,31 +1,58 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Table from "./component/Table/Table";
 import usePacs from '../../hooks/usePacs';
 import {TableHeadOfStudy} from "../../constants/TableHeadOfStudy";
-import {fetchStudy2Table} from "../../utils/flattenData";
 import { MdUploadFile } from "react-icons/md";
 import {IoCloseSharp, IoCloudUploadOutline} from "react-icons/io5";
 import {toast} from "react-toastify";
-import InsightViewer, { useImage } from '@lunit/insight-viewer'
-import DicomView from "./component/DicomView/DicomView";
-import useDiagnose from "../../hooks/useDiagnose";
 import {useNavigate} from "react-router-dom";
 import {useDownloadZip} from "../../hooks/useDownloadZip";
+import _ from "lodash";
 
 
 
 const SearchPage: React.FC = () => {
     const navigate = useNavigate();
-
     const { data, fetchDicom, uploadFiles, isUploading, uploadProgress } = usePacs();
     const { isExportLoading, error, fetchZip } = useDownloadZip();
 
     const [files, setFiles] = useState<File[]>([]);
     const [isFileClose, setIsFileClose] = useState<Boolean>(true);
 
+    const [searchValue, setSearchValue] = useState<string>("");
+    const [searchMode, setSearchMode] = useState<string>("PatientID");
+    const [tableData, setTableData] = useState<any[]|undefined>(data?.data);
+    const [searchModeList, setSearchModeList] = useState<{ key: string; value: string; }[]>([
+        {key: "PatientID", value: "Patient ID"},
+        {key: "PatientName", value: "Patient Name"}
+    ]);
+
+    const [searchModeClose, setSearchModeClose] = useState<Boolean>(true);
+
+    const handleSearch = (value: string) => {
+        setSearchValue(value);
+        if (searchValue === "") {
+            setTableData(data?.data);
+        }
+        else
+        if(searchMode==="PatientName"){
+            const datas = _.filter(data?.data, (item) => {
+                console.log("item: ", item);
+                return item[searchMode]?.original_string?.toLowerCase().includes(searchValue.toLowerCase());
+            });
+            setTableData(datas);
+        }
+        else{
+            const datas = _.filter(data?.data, (item) => {
+                return item[searchMode].toLowerCase().includes(searchValue.toLowerCase());
+            });
+            setTableData(datas);
+        }
+    };
+
     useEffect(() => {
-        console.log("Predict Result: ", data);
-    }, [data]);
+        handleSearch(searchValue);
+    }, [searchValue, data]);
 
     const handleDownload = (data:any) => {
         if(isExportLoading){
@@ -104,62 +131,22 @@ const SearchPage: React.FC = () => {
         setIsFileClose(true)
     }
 
+
+
     const handleRowClick = (data:any) => {
         navigate('series', {state: data});
+    }
+
+    const handleSearchModeClick  = (content:string) => {
+        setSearchModeClose(!searchModeClose)
+        setSearchMode(content)
     }
 
     return (
         <div className="bg-zinc-800 h-dvh pt-10">
             <div className={`mx-24 text-3xl text-white`}>Study Level {isExportLoading}</div>
-            <div
-                className={`flex flex-col justify-center items-center w-full  absolute top-0 bottom-0 backdrop-blur-sm  ${isDialogClose ? "hidden" : "block"}`}
-                onClick={() => setIsDialogClose(true)}
-            >
 
-                <div
-                    className={`flex flex-col items-center relative min-w-2/6 bg-zinc-800 px-10 py-12 rounded  `}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                    }}
-                >
-                    {
-                        // (predictResult && !isDiagnoseLoading) && (
-                        //     <div className={`flex px-2 text-white    `}>
-                        //         <div className={`flex flex-col items-center`}>
-                        //             <DicomView
-                        //                 wadouri={`wadouri:http://127.0.0.1:8000/api/v1/series?patientId=${predictResult.data.dicomOriginal.PatientID}&&studyUID=${predictResult.data.dicomOriginal.StudyInstanceUID}&&seriesUID=${predictResult.data.dicomOriginal.SeriesInstanceUID}`}
-                        //             />
-                        //             <p>Original</p>
-                        //         </div>
-                        //         <div className={`flex flex-col items-center`}>
-                        //             <DicomView
-                        //                 wadouri={`wadouri:http://127.0.0.1:8000/api/v1/series?patientId=${predictResult.data.dicomPredict.PatientID}&&studyUID=${predictResult.data.dicomPredict.StudyInstanceUID}&&seriesUID=${predictResult.data.dicomPredict.SeriesInstanceUID}`}
-                        //             />
-                        //             <p>Predict</p>
-                        //         </div>
-                        //     </div>
-                        // )
-                    }
-
-                    <button
-                        className={`absolute right-0 top-0 text-white text-xl px-2 py-2 m-3 rounded bg-zinc-700`}
-                        onClick={() => setIsDialogClose(true)}
-                    ><IoCloseSharp/></button>
-
-                    <div>
-                        <button
-                            className={`hover:bg-red-700 transition duration-300 bg-red-800 text-white px-4 py-2 mx-2 rounded mt-4`}
-                            onClick={handleUploadCancel}
-                        >
-                            Open in Weasis
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-
-            {/*<a href="weasis://%24dicom%3Aclose+--all+%24dicom%3Aget+-r+%22http%3A%2F%2F127.0.0.1%3A8000%2Fapi%2Fv1%2Fstudies%2F2%7Chttp%3A%2F%2F127.0.0.1%3A8000%2Fapi%2Fv1%2Fstudies%2F1%22">nhaasn*/}
-            {/*    voo ddaay2</a>*/}
+            {/*Upload*/}
             <div
                 className={`flex justify-center items-center w-full absolute z-10 top-0 bottom-0 backdrop-blur-sm  ${isFileClose ? "hidden" : "block"}`}
                 onClick={() => setIsFileClose(true)}
@@ -208,69 +195,98 @@ const SearchPage: React.FC = () => {
             </div>
 
 
-            {/*Upload*/}
-            <div className="input-group">
-                {/* Ẩn input file */}
-                <input
-                    id="file"
-                    type="file"
-                    className="hidden"
-                    accept="application/dicom, .dcm, .dicom"
-                    multiple
-                    onChange={handleFileChange}
-                />
+            <div className="flex justify-between items-center mx-24 my-10 ">
+                <div className={`flex flex-nowrap`}>
+                    <input
+                        className="border rounded py-2 px-3 bg-transparent text-white placeholder-zinc-300 leading-tight focus:outline-8 outline-amber-50   focus:shadow-outline"
+                        id="search"
+                        placeholder="Seach"
+                        type="text"
+                        autoComplete="off"
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)} // Cập nhật giá trị ngay khi người dùng nhập
 
-                <div className="flex justify-end mx-24 my-10">
-
-                    {
-                        files.length > 0 ?
-                            <div>
+                    />
+                    <div className={`relative rounded mx-3 flex bg-zinc-700`}>
+                        {
+                            searchModeList.map((item, index) => (
                                 <button
-                                    className="bg-zinc-700 text-white px-3 py-2 rounded hover:bg-gray-500 transition duration-300"
-                                    onClick={() => setIsFileClose(false)}
-                                >
-                                    {
-                                        isUploading ? (<>Uploading: {uploadProgress}%</>) : (
-                                            <div className={`flex flex-nowrap justify-between items-center`}>
-                                                <div className={`flex flex-nowrap items-center px-2`}>
-                                                    <IoCloudUploadOutline className={`mx-2 text-xl`}/>
-                                                    {files.length} Files selected
-                                                </div>
-                                                <button
-                                                    onClick={(event) => {
-                                                        handleUploadCancel();
-                                                        event.stopPropagation();
-                                                    }}
-                                                    className={`mx-2  p-2 rounded hover:bg-gray-700 transition duration-300`}
-                                                >
-                                                    <IoCloseSharp className={`text-xl`}/>
-                                                </button>
-                                            </div>
-                                        )
-                                    }
-                                </button>
-                            </div>
-                            :
-                            <label
-                                htmlFor="file"
-                                className={` cursor-pointer`}
-                            >
-                                <div
-                                    className="bg-zinc-700 text-white px-4 py-2 rounded hover:bg-gray-500 transition duration-300">
-                                    <MdUploadFile className="text-white text-2xl"/>
-                                </div>
-                            </label>
-                    }
+                                    key={index}
+                                    className={`
+                                        px-3 rounded hover:bg-zinc-500 transition duration-300
+                                        ${searchMode===item.key && !searchModeClose ? "bg-zinc-500 text-white z-10" : "text-white z-0"}
+                                        ${searchModeClose && searchMode!==item.key ? "hidden" : "block"}
+                                    `}
+                                    onClick={(event) => handleSearchModeClick(item.key)}
+                                >{item.value}</button>
+                            ))
+                        }
+                    </div>
                 </div>
 
+                <div className="input-group">
+                    {/* Ẩn input file */}
+                    <input
+                        id="file"
+                        type="file"
+                        className="hidden"
+                        accept="application/dicom, .dcm, .dicom"
+                        multiple
+                        onChange={handleFileChange}
+                    />
+
+                    <div className="flex justify-end">
+                        {
+                            files.length > 0 ?
+                                <div>
+                                    <button
+                                        className="bg-zinc-700 text-white px-3 py-2 rounded hover:bg-gray-500 transition duration-300"
+                                        onClick={() => setIsFileClose(false)}
+                                    >
+                                        {
+                                            isUploading ? (<>Uploading: {uploadProgress}%</>) : (
+                                                <div className={`flex flex-nowrap justify-between items-center`}>
+                                                    <div className={`flex flex-nowrap items-center px-2`}>
+                                                        <IoCloudUploadOutline className={`mx-2 text-xl`}/>
+                                                        {files.length} Files selected
+                                                    </div>
+                                                    <button
+                                                        onClick={(event) => {
+                                                            handleUploadCancel();
+                                                            event.stopPropagation();
+                                                        }}
+                                                        className={`mx-2  p-2 rounded hover:bg-gray-700 transition duration-300`}
+                                                    >
+                                                        <IoCloseSharp className={`text-xl`}/>
+                                                    </button>
+                                                </div>
+                                            )
+                                        }
+                                    </button>
+                                </div>
+                                :
+                                <label
+                                    htmlFor="file"
+                                    className={` cursor-pointer`}
+                                >
+                                    <div
+                                        className="bg-zinc-700 text-white px-4 py-2 rounded hover:bg-gray-500 transition duration-300">
+                                        <MdUploadFile className="text-white text-2xl"/>
+                                    </div>
+                                </label>
+                        }
+                    </div>
+
+                </div>
             </div>
+            {/*Upload*/}
 
             {/*Table*/}
             <div
                 className={`mx-24 rounded max-h-[60%] overflow-y-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-400`}>
                 <Table
                     tableHead={TableHeadOfStudy}
-                    data={data?.data}
+                    data={tableData}
                     handleRowClick={handleRowClick}
                     handleExport={handleDownload}
                 />

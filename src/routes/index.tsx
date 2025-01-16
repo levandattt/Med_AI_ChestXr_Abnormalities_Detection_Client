@@ -24,10 +24,6 @@ const Routes: React.FC = () => {
       path:'/diagnostic',
       element: <DiagnosticPage/>
     },
-    {
-      path:'/test',
-      element: <TestViewDicom/>
-    }
 
   ];
 

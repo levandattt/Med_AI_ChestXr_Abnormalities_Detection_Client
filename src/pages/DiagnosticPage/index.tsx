@@ -1,4 +1,4 @@
-import {useNavigate, useLocation} from "react-router-dom";
+import {useNavigate, useLocation, useSearchParams} from "react-router-dom";
 import {IoArrowBackOutline} from "react-icons/io5";
 import React, {useEffect, useState} from "react";
 import useDiagnose from "../../hooks/useDiagnose";
@@ -17,14 +17,15 @@ const DiagnosticPage: React.FC = () => {
         const interval = setInterval(() => {
             setDots(prev => (prev.length < 3 ? prev + '.' : ''));
         }, 500);
-
         return () => clearInterval(interval);
     }, []);
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const {isLoading, diagnose, data} = useDiagnose(
-        location.state?.PatientID,
-        location.state?.StudyInstanceUID,
-        location.state?.SeriesInstanceUID
+        searchParams?.get("patientID")??'',
+        searchParams?.get("studyInstanceUID")??'',
+        searchParams?.get("seriesInstanceUID")??'',
     )
 
     useEffect(() => {
@@ -33,7 +34,7 @@ const DiagnosticPage: React.FC = () => {
 
     return (
         <div className="bg-zinc-800 h-dvh pt-10">
-            <div className={`mx-24 text-3xl text-white`}>AI_Diagnose - {location.state.SeriesInstanceUID}</div>
+            <div className={`mx-24 text-3xl text-white`}>AI_Diagnose - Series UID: {searchParams.get("seriesInstanceUID")}</div>
 
             <div className="flex justify-between mx-24 my-10">
                 <button

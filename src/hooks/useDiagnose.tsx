@@ -38,6 +38,7 @@ function useDiagnose(
     const diagnose = useQuery<ApiResponse, AxiosError>({ // Add error type here
         queryKey: ['get-diagnose'],
         queryFn:async () => {
+            console.log("Calling API");
             return apiClient.get(GET_PREDICT,
                 {
                     params: {
@@ -80,12 +81,8 @@ function useDiagnose(
     });
 
     useEffect(() => {
-        return () => {
-            // Clean up function to reset the query when unmounting
-            diagnose.remove();
-            diagnose.refetch();
-        };
-    }, []);
+        diagnose.refetch();
+    }, [patientID, studyInstanceUID, seriesInstanceUID]);
 
     return {
         isLoading: diagnose.isLoading,

@@ -9,6 +9,7 @@ interface TableProps {
     exportData?: (data:any) => void;
     handleRowClick: (data:any) => void;
     onDiagnose: (data:any) => void;
+    handleViewDicom: (data:any) => void;
 }
 
 function Table (props:TableProps){
@@ -26,7 +27,9 @@ function Table (props:TableProps){
 
                 <thead className="sticky top-0 bg-zinc-600 uppercase tracking-wider border-b-2 border-zinc-800">
                 <tr>
-
+                    <th scope="col" className={`px-6 py-4 border-x-2 border-zinc-800`}>
+                        ID
+                    </th>
                     <th scope="col" className={`px-6 py-4 border-x-2 border-zinc-800`}>
                         Patient ID
                     </th>
@@ -55,24 +58,32 @@ function Table (props:TableProps){
                             <tr
                                 key={index}
                                 className={` hover:bg-slate-600 ${index % 2 === 0 ? "" : "bg-zinc-700"}`}
-                                onClick={() => props.handleRowClick(data)}
+                                onDoubleClick={() => props.handleRowClick(data)}
                             >
-                                <td className="px-6 py-3 border-x-2 border-zinc-800">{data.PatientID}</td>
-                                <td className="px-6 py-3 border-x-2 border-zinc-800">{data.PatientName.original_string}</td>
-                                <td className="px-6 py-3 border-x-2 border-zinc-800">{data.Modality}</td>
-                                <td className="px-6 py-3 border-x-2 border-zinc-800">{data.SeriesDescription}</td>
-                                <td className="px-6 py-3 border-x-2 border-zinc-800">{convertPacDateTime(data.SeriesDate, data.SeriesTime)}</td>
-                                <td className="px-6 py-3">
-                                    <a
-                                        href={`weasis://` + encodeURIComponent(`$dicom:close --all $dicom:get -r "${ROOT_API}/api/v1/studies/series?patientId=${data?.PatientID}&studyInstanceUID=${data?.StudyInstanceUID}&seriesInstanceUID=${data?.SeriesInstanceUID}"`)}
-                                        className={`px-2 py-3 hover:text-cyan-400 hover:bg-zinc-700 rounded `}
+                                <td className="px-6 border-x-2 border-zinc-800">{index+1}</td>
+                                <td className="px-6 border-x-2 border-zinc-800">{data.PatientID}</td>
+                                <td className="px-6 border-x-2 border-zinc-800">{data.PatientName.original_string}</td>
+                                <td className="px-6 border-x-2 border-zinc-800">{data.Modality}</td>
+                                <td className="px-6 border-x-2 border-zinc-800">{data.SeriesDescription}</td>
+                                <td className="px-6 border-x-2 border-zinc-800">{convertPacDateTime(data.SeriesDate, data.SeriesTime)}</td>
+                                <td className="px-6 py-2">
+                                    {/*<a*/}
+                                    {/*    href={`weasis://` + encodeURIComponent(`$dicom:close --all $dicom:get -r "${ROOT_API}/api/v1/studies/series?patientId=${data?.PatientID}&studyInstanceUID=${data?.StudyInstanceUID}&seriesInstanceUID=${data?.SeriesInstanceUID}"`)}*/}
+                                    {/*    className={`px-2 py-3 hover:text-cyan-400 hover:bg-zinc-700 rounded `}*/}
+                                    {/*>*/}
+                                    {/*    Open in Weasis*/}
+                                    {/*</a>*/}
+                                    <button
+                                        className={`px-2 py-2  hover:bg-zinc-700 rounded hover:text-cyan-400`}
+                                        onClick={() => props.handleViewDicom(data)}
                                     >
-                                        Open in Weasis
-                                    </a>
+                                        View
+                                    </button>
                                     |
                                     <button
-                                        className={`px-2 py-3 hover:text-cyan-400 hover:bg-zinc-700 rounded `}
+                                        className={`px-2 py-2  ${data.SeriesDescription === 'Predicted' ? "text-zinc-600" : "hover:bg-zinc-700 rounded hover:text-cyan-400 "} `}
                                         onClick={() => props.onDiagnose(data)}
+                                        disabled={data.SeriesDescription === 'Predicted'}
                                     >
                                         Diagnose
                                     </button>
