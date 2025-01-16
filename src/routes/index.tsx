@@ -3,6 +3,7 @@ import SearchPage from "../pages/SearchPage";
 import SeriesSearchPage from "../pages/SeriesSearchPage";
 import DiagnosticPage from "../pages/DiagnosticPage";
 import TestViewDicom from "../pages/TestViewDicom";
+import ViewDicomInWeasis from "../pages/ViewDicomInWeasis";
 
 
 const Routes: React.FC = () => {
@@ -24,6 +25,10 @@ const Routes: React.FC = () => {
       path:'/diagnostic',
       element: <DiagnosticPage/>
     },
+    {
+      path:'/test',
+      element: <ViewDicomInWeasis/>
+    }
 
   ];
 
